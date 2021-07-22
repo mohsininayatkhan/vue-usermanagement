@@ -7,7 +7,8 @@
       </h1>
       <div class="links">
             <div v-if="user">
-              <div class="current-user">Welcome {{ user.displayName}}</div>
+               <router-link class="btn" :to="{name: 'Myprofile'}">My Profile</router-link>
+              <span class="current-user">Hi {{ user.displayName}}</span>
               <button @click="handleLogout">Logout</button>
             </div>
             <div v-else>
@@ -23,9 +24,11 @@
 import useLogout from '@/composables/useLogout'
 import getUser from '@/composables/getUser'
 import {useRouter} from 'vue-router'
+import { ref, watch } from 'vue'
 
 export default {
   setup() {
+    
     const {user} = getUser()
     const {logout} = useLogout()
     const router = useRouter()
@@ -34,9 +37,11 @@ export default {
       await logout();
       router.push({name: 'Login'})
     }
+
+   
     return {user, handleLogout}
-  }
-  
+  },
+ 
 }
 </script>
 
@@ -65,7 +70,11 @@ nav .links a, button {
 nav img {
     max-height: 60px;
 }
-nav .current-user {
-  
+span {
+  font-size: 14px;
+  display: inline-block;
+  margin-left: 14px;
+  padding-left: 14px;
+  border-left: 1px solid #eee;
 }
 </style>

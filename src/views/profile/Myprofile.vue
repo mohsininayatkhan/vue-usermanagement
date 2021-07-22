@@ -1,6 +1,7 @@
 <template>
   <form  @submit.prevent="handleUpdate">
       <h4>Update Profile</h4>
+      <div v-if="errorProfile" class="error">{{ errorProfile }}</div>
       <input type="text" required placeholder="Title" v-model="title">
       <input type="phone" required placeholder="Phone" v-model="phone">
       <textarea placeholder="About Yourself" v-model="about"></textarea>      
@@ -10,38 +11,52 @@
       </select>
       <label>Upload profile image</label>
       <input type="file" @change="handleChange">      
-      <div class="error">{{ fileError }}</div>
-      <button>Update</button>
+      <div v-if="fileError" class="error">{{ fileError }}</div>
+      <button v-if="!isPending">Update</button>
+      <button v-if="isPending" disabled>Loading...</button>
   </form>
 </template>
 
 <script>
 import {ref} from 'vue'
 import useStorage from '@/composables/useStorage'
+import useProfile from '@/composables/useProfile'
 
 export default {
     name: 'Myprofile',
     setup() {
         const {filePath, url, error, uploadImage} = useStorage()
+        const {errorProfile, resUser, isPendingProfile, updateProfile} = useProfile()
 
         const title = ref('')
         const about = ref('')
         const phone = ref('')
         const status = ref('Online')
+        const isPending = ref(false)
 
         const file = ref(null)
         const fileError = ref(null)
 
         const allowedFileTypes = ['image/png', 'image/jpeg'];
 
-        const handleUpdate = async () => {
-           console.log(file.value)
-            if(file.value) {
-                debugger
-                 await uploadImage(file.value)
-                 console.log('Image, ', url.value)
+        const handleUpdate = async () => {           
+            
+            let data = {
+                title: title.value,
+                phone: phone.value,
+                about: about.value,
+                status: status.value
             }
-            console.log(title.value, about.value, phone.value, status.value, file.value)
+            
+            isPending.value = true
+            // uploading file
+            if(file.value) {
+                await uploadImage(file.value)
+                data.photoUrl = url.value
+                data.filePath = filePath.value
+            }
+            await updateProfile(data)
+            isPending.value = false
         }
 
         const handleChange = (e) => {           
@@ -54,7 +69,7 @@ export default {
                 fileError.value = 'Please select allowed file types (png or jpeg)'
             }
         }
-        return {title, about, phone, status, fileError, handleUpdate, handleChange}
+        return {title, about, phone, status, fileError, errorProfile, isPending, handleUpdate, handleChange}
     }
 }
 </script>

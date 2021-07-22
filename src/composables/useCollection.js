@@ -18,11 +18,36 @@ const useCollection = (collection) => {
     catch(err) {
       isPending.value = false;
       console.log(err.message)
-      error.value = 'could not send the message'
+      error.value = 'could not create the document'
     }
   }
 
-  return { error, addDoc, isPending }
+  // update a document
+  const updatedDoc = async (id, doc) => {
+    error.value = null
+    isPending.value = true
+
+    
+    try {
+      let userDoc = await userFirestore.collection(collection).doc(id).get()
+      console.log(userDoc, userDoc.exists)
+
+      if( userDoc.exists) {
+        await userFirestore.collection(collection).doc(id).update(doc)
+      } else {
+        await userFirestore.collection(collection).doc(id).set(doc)
+      }
+      
+      isPending.value = false;
+    }
+    catch(err) {
+      isPending.value = false;
+      console.log(err.message)
+      error.value = 'could not update the document'
+    }
+  }
+
+  return { error, addDoc, updatedDoc, isPending }
 
 }
 
