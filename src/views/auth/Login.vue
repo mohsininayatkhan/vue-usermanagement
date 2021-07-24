@@ -25,6 +25,7 @@ export default {
 
         const handleSubmit = async () => {
             const res =  await login(email.value, password.value)
+            // UPDATE USER STATUS TO ONLINE
             if(!error.value) {
                 console.log('User Loggged in')
                 router.push('/')

@@ -17,12 +17,17 @@ const useProfile = () => {
            const resUser = getUser()  
             
             await resUser.user.value.updateProfile({displayName: profile.title, photoURL: profile.photoUrl})         
-
-            await updatedDoc(resUser.user.value.uid, {
+            const data = {
                 'about': profile.about, 
                 'status': profile.status,
                 'phone': profile.phone
-            })
+            };
+
+            if(profile.filePath) {
+                data.filePath = profile.filePath
+            }
+            
+            await updatedDoc(resUser.user.value.uid, data)
             
             errorProfile.value = null
             isPendingProfile.value = false
