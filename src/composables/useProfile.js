@@ -7,15 +7,14 @@ const useProfile = () => {
     const errorProfile = ref(null)
     const isPendingProfile = ref(false) 
     const resUser = ref(null)
+    const profileDocument = ref(null)    
     
-    
-    const { error, addDoc, updatedDoc, isPending } = useCollection('users')
+    const { error, document, getDoc, addDoc, updatedDoc, isPending } = useCollection('users')
 
-    const updateProfile = async (profile) => {        
-       
-
-        try { 
-            const resUser = getUser()  
+    const updateProfile = async (profile) => { 
+         
+       try{
+           const resUser = getUser()  
             
             await resUser.user.value.updateProfile({displayName: profile.title, photoURL: profile.photoUrl})         
 
@@ -34,6 +33,7 @@ const useProfile = () => {
             errorProfile.value = e.message
         }
     }
+
     return {errorProfile, resUser, isPendingProfile, updateProfile}
 }
 export default useProfile

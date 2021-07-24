@@ -1,7 +1,7 @@
 <template>
   <form  @submit.prevent="handleUpdate">
       <h4>Update Profile</h4>
-      <div v-if="errorProfile" class="error">{{ errorProfile }}</div>
+      <div v-if="error" class="error">{{ error }}</div>
       <input type="text" required placeholder="Title" v-model="title">
       <input type="phone" required placeholder="Phone" v-model="phone">
       <textarea placeholder="About Yourself" v-model="about"></textarea>      
@@ -18,16 +18,27 @@
 </template>
 
 <script>
-import {ref} from 'vue'
+import {ref, onMounted} from 'vue'
+import {useRouter} from 'vue-router'
 import useStorage from '@/composables/useStorage'
 import useProfile from '@/composables/useProfile'
+import getUser from '@/composables/getUser'
+import useCollection from '@/composables/useCollection'
+
 
 export default {
     name: 'Myprofile',
     setup() {
-        const {filePath, url, error, uploadImage} = useStorage()
-        const {errorProfile, resUser, isPendingProfile, updateProfile} = useProfile()
 
+        const router = useRouter()
+
+        const {filePath, url, errorStorage, uploadImage} = useStorage()
+        const {errorProfile, resUser, isPendingProfile, updateProfile} = useProfile()
+        const { errorCollection, document, getDoc, addDoc, updatedDoc, isPendingCollection } = useCollection('users')
+
+        const {user} = getUser() 
+
+        const error = ref('')
         const title = ref('')
         const about = ref('')
         const phone = ref('')
@@ -36,27 +47,59 @@ export default {
 
         const file = ref(null)
         const fileError = ref(null)
-
         const allowedFileTypes = ['image/png', 'image/jpeg'];
 
-        const handleUpdate = async () => {           
-            
+        onMounted(async () => {
+            await getDoc(user.value.uid);
+
+            if(errorCollection.value) {
+                error.value = errorCollection.value
+                isPending.value = false
+                return
+            }
+
+            title.value = user.value.displayName
+            if(document.value) {
+                 about.value = document.value.about
+                 phone.value = document.value.phone
+                 status.value = document.value.status
+            }           
+        })
+
+        const handleUpdate = async () => {  
+            isPending.value = true
+
             let data = {
                 title: title.value,
                 phone: phone.value,
                 about: about.value,
                 status: status.value
             }
-            
-            isPending.value = true
+
             // uploading file
             if(file.value) {
-                await uploadImage(file.value)
+                const filePath = `profile/${user.value.uid}/${file.value.name}`
+                await uploadImage(file.value, filePath)
+
+                if(errorStorage.value) {
+                    error.value = errorStorage.value
+                    isPending.value = false
+                    return
+                }
                 data.photoUrl = url.value
                 data.filePath = filePath.value
             }
+
             await updateProfile(data)
+
+            if(errorProfile.value) {
+               error.value = errorProfile.value
+                isPending.value = false
+                return 
+            }
+            
             isPending.value = false
+            router.push('/')
         }
 
         const handleChange = (e) => {           
@@ -69,7 +112,7 @@ export default {
                 fileError.value = 'Please select allowed file types (png or jpeg)'
             }
         }
-        return {title, about, phone, status, fileError, errorProfile, isPending, handleUpdate, handleChange}
+        return {title, about, phone, status, fileError, error, isPending, handleUpdate, handleChange}
     }
 }
 </script>
@@ -87,5 +130,4 @@ label {
 button {
     margin-top: 20px;
 }
-
 </style>

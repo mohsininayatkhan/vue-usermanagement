@@ -3,30 +3,30 @@ import { userFirestore } from '../firebase/config'
 
 const useCollection = (collection) => {
 
-  const error = ref(null)
-  const isPending = ref(false)
+  const errorCollection = ref(null)
+  const isPendingCollection = ref(false)  
+  const document = ref(null)   
 
   // add a new document
   const addDoc = async (doc) => {
     error.value = null
-    isPending.value = true
+    isPendingCollection.value = true
 
     try {
       await userFirestore.collection(collection).add(doc)
-      isPending.value = false;
+      isPendingCollection.value = false;
     }
     catch(err) {
-      isPending.value = false;
+      isPendingCollection.value = false;
       console.log(err.message)
-      error.value = 'could not create the document'
+      errorCollection.value = 'could not create the document'
     }
   }
 
   // update a document
   const updatedDoc = async (id, doc) => {
-    error.value = null
-    isPending.value = true
-
+    errorCollection.value = null
+    isPendingCollection.value = true
     
     try {
       let userDoc = await userFirestore.collection(collection).doc(id).get()
@@ -38,17 +38,49 @@ const useCollection = (collection) => {
         await userFirestore.collection(collection).doc(id).set(doc)
       }
       
+      isPendingCollection.value = false;
+    }
+    catch(err) {
+      isPendingCollection.value = false;
+      console.log(err.message)
+      errorCollection.value = 'could not update the document'
+    }
+  } 
+
+  const getDoc = async (id) => {
+    errorCollection.value = null
+    isPendingCollection.value = true
+
+    try {
+      let doc = await userFirestore.collection(collection).doc(id).get()      
+      isPendingCollection.value = false;
+      document.value = await doc.data()
+      console.log(document.value)
+    }
+    catch(err) {
+      isPendingCollection.value = false;
+      console.log(err.message)
+      errorCollection.value = 'could not get the document'
+    }
+  }
+
+  /*const getDoc = async (id) => {
+    error.value = null
+    isPending.value = true
+
+    try {
+      let doc = await userFirestore.collection(collection).doc(id).get()      
       isPending.value = false;
+      document.value = await doc.data()
     }
     catch(err) {
       isPending.value = false;
       console.log(err.message)
-      error.value = 'could not update the document'
+      error.value = 'could not get the document'
     }
-  }
+  }*/
 
-  return { error, addDoc, updatedDoc, isPending }
-
+  return { errorCollection, document, getDoc, addDoc, updatedDoc, isPendingCollection }
 }
 
 export default useCollection
