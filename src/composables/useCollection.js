@@ -9,7 +9,7 @@ const useCollection = (collection) => {
 
   // add a new document
   const addDoc = async (doc) => {
-    error.value = null
+    errorCollection.value = null
     isPendingCollection.value = true
 
     try {
@@ -63,23 +63,6 @@ const useCollection = (collection) => {
       errorCollection.value = 'could not get the document'
     }
   }
-
-  /*const getDoc = async (id) => {
-    error.value = null
-    isPending.value = true
-
-    try {
-      let doc = await userFirestore.collection(collection).doc(id).get()      
-      isPending.value = false;
-      document.value = await doc.data()
-    }
-    catch(err) {
-      isPending.value = false;
-      console.log(err.message)
-      error.value = 'could not get the document'
-    }
-  }*/
-
   return { errorCollection, document, getDoc, addDoc, updatedDoc, isPendingCollection }
 }
 

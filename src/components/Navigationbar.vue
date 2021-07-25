@@ -8,6 +8,7 @@
       <div class="links">
             <div v-if="user">
                <router-link class="btn" :to="{name: 'Myprofile'}">My Profile</router-link>
+               <router-link class="btn" :to="{name: 'Users'}">Users</router-link>
               <span class="current-user">Hi {{ user.displayName}}</span>
               <button @click="handleLogout">Logout</button>
             </div>

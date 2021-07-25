@@ -1,5 +1,6 @@
 import { ref } from 'vue'
 import { userAuth } from '../firebase/config'
+import useCollection from './useCollection'
 
 // refs
 const error = ref(null)
@@ -10,7 +11,10 @@ const logout = async () => {
   error.value = null
   isPending.value = true
 
+  const {updatedDoc} = useCollection('users')
+
   try {    
+    await updatedDoc(userAuth.currentUser.uid, {'status': 'Offline' })
     await userAuth.signOut()
     isPending.value = false
   }

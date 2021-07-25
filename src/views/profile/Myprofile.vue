@@ -37,8 +37,8 @@ export default {
         const router = useRouter()
 
         const {filePath, url, errorStorage, uploadImage} = useStorage()
-        const {errorProfile, resUser, isPendingProfile, updateProfile} = useProfile()
-        const { errorCollection, document, getDoc, addDoc, updatedDoc, isPendingCollection } = useCollection('users')
+        const {errorProfile, updateProfile} = useProfile()
+        const { errorCollection, document, getDoc } = useCollection('users')
 
         console.log(userAuth.currentUser)
 
@@ -54,8 +54,8 @@ export default {
         const fileError = ref(null)
         const allowedFileTypes = ['image/png', 'image/jpeg'];
 
-        onMounted(async () => {
-            await getDoc(userAuth.currentUser.uid);
+        onMounted(async () => {            
+            await getDoc(userAuth.currentUser.uid);            
 
             if(errorCollection.value) {
                 error.value = errorCollection.value

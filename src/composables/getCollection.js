@@ -8,13 +8,11 @@ const getCollection = (collection) => {
 
   // register the firestore collection reference
   let collectionRef = userFirestore.collection(collection)
-    .orderBy('createdAt')
 
   const unsub = collectionRef.onSnapshot(snap => {
     let results = []
-    snap.docs.forEach(doc => {
-      // must wait for the server to create the timestamp & send it back
-      doc.data().createdAt && results.push({...doc.data(), id: doc.id})
+    snap.docs.forEach(doc => {      
+     results.push({...doc.data(), id: doc.id})
     });
     
     // update values

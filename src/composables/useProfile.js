@@ -6,10 +6,9 @@ import useCollection from './useCollection'
 const useProfile = () => {
     const errorProfile = ref(null)
     const isPendingProfile = ref(false) 
-    const resUser = ref(null)
-    const profileDocument = ref(null)    
+    const resUser = ref(null) 
     
-    const { error, document, getDoc, addDoc, updatedDoc, isPending } = useCollection('users')
+    const {updatedDoc} = useCollection('users')
 
     const updateProfile = async (profile) => { 
          
@@ -18,6 +17,7 @@ const useProfile = () => {
             
             await resUser.user.value.updateProfile({displayName: profile.title, photoURL: profile.photoUrl})         
             const data = {
+                'name': profile.title,
                 'about': profile.about, 
                 'status': profile.status,
                 'phone': profile.phone
@@ -25,6 +25,7 @@ const useProfile = () => {
 
             if(profile.filePath) {
                 data.filePath = profile.filePath
+                data.photo = profile.photoUrl
             }
             
             await updatedDoc(resUser.user.value.uid, data)
